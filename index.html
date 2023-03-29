@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Property Profit Estimator</title>
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<style>
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-color: #f9f9f9;
+		}
+		h1 {
+			text-align: center;
+			margin-top: 50px;
+			color: #333;
+		}
+		form {
+			max-width: 800px;
+			margin: 0 auto;
+			background-color: #fff;
+			padding: 40px;
+			border-radius: 10px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+		}
+		label {
+			display: block;
+			margin-bottom: 10px;
+			color: #555;
+			font-size: 18px;
+			font-weight: 500;
+		}
+		input[type="text"] {
+			padding: 10px;
+			border-radius: 5px;
+			border: none;
+			background-color: #f2f2f2;
+			color: #333;
+			font-size: 16px;
+			margin-bottom: 20px;
+			width: 100%;
+		}
+		button[type="button"] {
+			padding: 10px 20px;
+			background-color: #333;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			font-size: 18px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+		button[type="button"]:hover {
+			background-color: #555;
+		}
+		h2 {
+			text-align: center;
+			margin-top: 40px;
+			color: #333;
+			font-size: 24px;
+			font-weight: 500;
+		}
+		p#prediction {
+			margin-top: 20px;
+			padding: 20px;
+			background-color: #f2f2f2;
+			border-radius: 5px;
+			font-size: 18px;
+			color: #555;
+			font-weight: 500;
+			line-height: 1.5;
+			overflow-wrap: break-word;
+			word-wrap: break-word;
+			hyphens: auto;
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<h1>Property Profit Estimator</h1>
+	<form>
+		<label for="purchase-price">Purchase Price:</label>
+		<input type="text" id="purchase-price" name="purchase-price" required>
+		
+		<label for="estimated-repairs">Estimated Repairs:</label>
+		<input type="text" id="estimated-repairs" name="estimated-repairs" required>
+		
+		<label for="current-value">Current Property Value:</label>
+		<input type="text" id="current-value" name="current-value" required>
+		
+		<label for="after-repair-value">After Repair Value:</label>
+		<input type="text" id="after-repair-value" name="after-repair-value" required>
+		
+		<label for="closing-costs">Closing Costs:</label>
+		<input type="text" id="closing-costs" name="closing-costs" required>
+		
+		<label for="holding-period">Holding Period (in years):</label>
+		<input type="text" id="holding-period" name="holding-period" required>
+		
+		<label for="state">Property State:</label>
+		<input type="text" id="state" name="state" required>
+		
+		<label for="country-gdp">GDP of Country:</label>
+		<input type="text" id="country-gdp" name="country-gdp" required>
+		
+		<button type="button" onclick="predict()">Predict Profit/Loss</button>
+	</form>
+	<h2>Prediction:</h2>
+	<p id="prediction"></p>
+	<script>
+		function predict() {
+			var purchasePrice = parseFloat(document.getElementById("purchase-price").value);
+			var estimatedRepairs = parseFloat(document.getElementById("estimated-repairs").value);
+			var currentValue = parseFloat(document.getElementById("current-value").value);
+			var afterRepairValue = parseFloat(document.getElementById("after-repair-value").value);
+			var closingCosts = parseFloat(document.getElementById("closing-costs").value);
+			var holdingPeriod = parseFloat(document.getElementById("holding-period").value);
+			var totalInvestment = purchasePrice + estimatedRepairs + closingCosts;
+			var propertyState = document.getElementById("state").value;
+			var countryGDP = parseFloat(document.getElementById("country-gdp").value);
+			
+			var data = {
+				input: {
+					purchase_price: purchasePrice,
+					repairs_cost: estimatedRepairs,
+					current_value: currentValue,
+					after_repair_value: afterRepairValue,
+					closing_costs: closingCosts,
+					holding_period: holdingPeriod,
+					total_investment: totalInvestment,
+					property_state: propertyState,
+					country_gdp: countryGDP
+				},
+				model: "text-davinci-002",
+				prompt: "Given the property details, predict the expected profit or loss after " + holdingPeriod + " years of holding the property, taking into account the property state and GDP of the country."
+			};
+			
+			axios.post("https://api.openai.com/v1/engines/davinci-codex/completions", data, {
+				headers: {
+					"Authorization": "Bearer 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",
+					"Content-Type": "application/json"
+				}
+			})
+			.then(function(response) {
+				var prediction = response.data.choices[0].text;
+				document.getElementById("prediction").innerHTML = prediction;
+			})
+			.catch(function(error) {
+				console.log(error);
+			});
+		}
+	</script>
+</body>
+</html>
+
